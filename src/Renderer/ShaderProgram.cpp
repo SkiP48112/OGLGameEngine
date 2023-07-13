@@ -7,40 +7,40 @@ namespace Renderer
     ShaderProgram::ShaderProgram(const std::string& vertexShader, const std::string& fragmentShader)
     {
         GLuint vertexShaderID;
-        if(!createShader(vertexShader, GL_VERTEX_SHADER, vertexShaderID))
+        if(!CreateShader(vertexShader, GL_VERTEX_SHADER, vertexShaderID))
         {
             std::cerr << "VERTEX SHADER compile time error" << std::endl;
             return;
         }
 
         GLuint fragmentShaderID;
-        if(!createShader(fragmentShader, GL_FRAGMENT_SHADER, fragmentShaderID))
+        if(!CreateShader(fragmentShader, GL_FRAGMENT_SHADER, fragmentShaderID))
         {
             std::cerr << "FRAGMENT SHADER compile time error" << std::endl;
             glDeleteShader(vertexShaderID);
             return;
         }
 
-        m_ID = glCreateProgram();
-        glAttachShader(m_ID, vertexShaderID);
-        glAttachShader(m_ID, fragmentShaderID);
-        glLinkProgram(m_ID);
+        ID = glCreateProgram();
+        glAttachShader(ID, vertexShaderID);
+        glAttachShader(ID, fragmentShaderID);
+        glLinkProgram(ID);
 
         GLint status;
-        glGetProgramiv(m_ID, GL_LINK_STATUS, &status);
+        glGetProgramiv(ID, GL_LINK_STATUS, &status);
         if(!status)
         {
             GLchar infoLog[1024];
-            glGetShaderInfoLog(m_ID, 1024, nullptr, infoLog);
+            glGetShaderInfoLog(ID, 1024, nullptr, infoLog);
             std::cerr << "ERROR::SHADER: Link time error:\n" << infoLog << std::endl;
         }
 
-        m_isCompiled = true;
+        isCompiled = true;
         glDeleteShader(vertexShaderID);
         glDeleteShader(fragmentShaderID);
     }
 
-    bool ShaderProgram::createShader(const std::string& src, const GLenum shaderType, GLuint& shaderID)
+    bool ShaderProgram::CreateShader(const std::string& src, const GLenum shaderType, GLuint& shaderID)
     {
         shaderID = glCreateShader(shaderType);
         const char* code = src.c_str();
@@ -64,31 +64,31 @@ namespace Renderer
 
     ShaderProgram::~ShaderProgram()
     {
-        glDeleteProgram(m_ID);
+        glDeleteProgram(ID);
     }
 
-    void ShaderProgram::use() const
+    void ShaderProgram::Use() const
     {
-        glUseProgram(m_ID);
+        glUseProgram(ID);
     }
 
     ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept
     {
-        m_ID = shaderProgram.m_ID;
-        m_isCompiled = shaderProgram.m_isCompiled;
+        ID = shaderProgram.ID;
+        isCompiled = shaderProgram.isCompiled;
 
-        shaderProgram.m_ID = 0;
-        shaderProgram.m_isCompiled = false;
+        shaderProgram.ID = 0;
+        shaderProgram.isCompiled = false;
     }
 
     ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept
     {
-        glDeleteProgram(m_ID);
-        m_ID = shaderProgram.m_ID;
-        m_isCompiled = shaderProgram.m_isCompiled;
+        glDeleteProgram(ID);
+        ID = shaderProgram.ID;
+        isCompiled = shaderProgram.isCompiled;
 
-        shaderProgram.m_ID = 0;
-        shaderProgram.m_isCompiled = false;
+        shaderProgram.ID = 0;
+        shaderProgram.isCompiled = false;
 
         return *this;
     }
